@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FANZA AUTO POSTER</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;700&display=swap');
+  :root {
+    --bg: #0a0a0a; --surface: #111; --surface2: #1a1a1a;
+    --accent: #ff2d55; --accent2: #ff9500; --text: #f0f0f0;
+    --muted: #666; --border: #222; --success: #30d158;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; padding: 16px; }
+  header { text-align: center; padding: 24px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; letter-spacing: 6px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  header p { color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; margin-top: 4px; }
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+  .section-title { font-size: 0.65rem; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; font-weight: 700; }
+  .field { margin-bottom: 10px; }
+  label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
+  input, select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 10px 12px; font-size: 0.82rem; font-family: 'Noto Sans JP', sans-serif; outline: none; }
+  input:focus, select:focus { border-color: var(--accent); }
+  .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 3px; cursor: pointer; transition: all 0.2s; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), #ff6b35); color: white; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text); margin-top: 10px; }
+  .tweet-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+  .tweet-num { font-size: 0.65rem; color: var(--accent); letter-spacing: 2px; font-weight: 700; margin-bottom: 10px; }
+  .thumb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+  .thumb-wrap { position: relative; border-radius: 6px; overflow: hidden; aspect-ratio: 3/4; background: #222; }
+  .thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb-save-hint { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.55rem; text-align: center; padding: 3px; }
+  .tweet-textarea { width: 100%; background: #111; border: 2px solid var(--accent); border-radius: 8px; color: var(--text); padding: 12px; font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; line-height: 1.8; min-height: 150px; outline: none; -webkit-user-select: text; user-select: text; }
+  .tweet-len { font-size: 0.65rem; color: var(--muted); margin-top: 6px; text-align: right; }
+  .step-hint { font-size: 0.72rem; color: var(--accent2); margin-top: 8px; line-height: 1.7; }
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .stat-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
+  .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--accent); }
+  .stat-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 1px; margin-top: 2px; }
+  .tab-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tab { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--muted); font-size: 0.72rem; cursor: pointer; text-align: center; transition: all 0.2s; }
+  .tab.active { border-color: var(--accent); color: var(--accent); background: rgba(255,45,85,0.08); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .log-area { background: #050505; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 0.72rem; font-family: monospace; color: #0f0; height: 100px; overflow-y: auto; line-height: 1.6; }
+  .log-error { color: var(--accent); }
+  .log-info { color: #0af; }
+  .log-success { color: var(--success); }
+  .progress-bar { height: 3px; background: var(--border); border-radius: 3px; margin: 10px 0; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; transition: width 0.4s ease; width: 0%; }
+  #results-section { display: none; }
+  .genre-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .genre-btn { padding: 9px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--muted); font-size: 0.72rem; cursor: pointer; text-align: center; transition: all 0.2s; }
+  .genre-btn.selected { border-color: var(--accent); color: var(--accent); background: rgba(255,45,85,0.08); }
+  .hint { background: rgba(48,209,88,0.08); border: 1px solid rgba(48,209,88,0.3); border-radius: 8px; padding: 10px 12px; font-size: 0.75rem; color: var(--success); margin-bottom: 12px; line-height: 1.7; }
+  .no-img { color: var(--muted); font-size: 0.72rem; text-align: center; padding: 16px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>FANZA AUTO POSTER</h1>
+  <p>AFFILIATE TWEET GENERATOR</p>
+</header>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-num" id="stat-generated">0</div><div class="stat-label">生成済み</div></div>
+  <div class="stat-box"><div class="stat-num" id="stat-today">0</div><div class="stat-label">本日投稿</div></div>
+</div>
+
+<div class="tab-row">
+  <div class="tab active" onclick="switchTab('generate')">生成・投稿</div>
+  <div class="tab" onclick="switchTab('settings')">API設定</div>
+  <div class="tab" onclick="switchTab('howto')">使い方</div>
+</div>
+
+<!-- 生成・投稿 -->
+<div class="tab-content active" id="tab-generate">
+
+  <div class="hint">
+    📸 画像を長押し保存 → Xで添付<br>
+    📋 テキストを長押し→全選択→コピー→Xに貼り付け
+  </div>
+
+  <div class="section">
+    <div class="section-title">投稿設定</div>
+    <div class="field">
+      <label>ジャンル</label>
+      <div class="genre-grid">
+        <div class="genre-btn selected" onclick="selectGenre(this,'videoa')">動画（一般）</div>
+        <div class="genre-btn" onclick="selectGenre(this,'anime')">アニメ</div>
+        <div class="genre-btn" onclick="selectGenre(this,'digital_doujin')">同人</div>
+        <div class="genre-btn" onclick="selectGenre(this,'book')">電子書籍</div>
+      </div>
+      <input type="hidden" id="selected-genre" value="videoa">
+    </div>
+    <div class="field">
+      <label>生成件数</label>
+      <select id="gen-count">
+        <option value="3">3件</option>
+        <option value="5" selected>5件</option>
+        <option value="10">10件</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>ソート順</label>
+      <select id="sort-order">
+        <option value="date">新着順</option>
+        <option value="rank">ランキング順</option>
+        <option value="review">レビュー順</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" id="gen-btn" onclick="generateTweets()">ツイートを生成する</button>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+  <div id="results-section">
+    <div class="section">
+      <div class="section-title">生成結果 <span id="results-count"></span></div>
+      <div id="tweets-container"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">ログ</div>
+    <div class="log-area" id="log"></div>
+  </div>
+</div>
+
+<!-- API設定 -->
+<div class="tab-content" id="tab-settings">
+  <div class="section">
+    <div class="section-title">FANZA WebAPI</div>
+    <div class="field"><label>API ID</label><input type="text" id="fanza-api-id" placeholder="WC9WbSgNRXQ6pYpzbpaC"></div>
+    <div class="field"><label>アフィリエイトID</label><input type="text" id="fanza-affiliate-id" placeholder="hanzoKOK-990"></div>
+  </div>
+  <button class="btn btn-primary" onclick="saveSettings()">設定を保存する</button>
+  <button class="btn btn-secondary" onclick="loadSettings(); alert('読み込みました')">保存済み設定を読み込む</button>
+</div>
+
+<!-- 使い方 -->
+<div class="tab-content" id="tab-howto">
+  <div class="section">
+    <div class="section-title">画像付き投稿の手順</div>
+    <div style="font-size:0.8rem;line-height:2.2;color:var(--muted);">
+      <div>① 「ツイートを生成する」タップ</div>
+      <div>② サムネイル画像を<strong style="color:var(--text)">長押し→保存</strong>（1〜3枚）</div>
+      <div>③ テキストエリアを長押し→全選択→コピー</div>
+      <div>④ Xアプリを開く→新規投稿</div>
+      <div>⑤ 画像アイコンから保存した画像を添付</div>
+      <div>⑥ テキストを貼り付けて投稿</div>
+      <div style="margin-top:8px;color:var(--success);">✅ 完了</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">収益の目安</div>
+    <div style="font-size:0.78rem;line-height:1.9;color:var(--muted);">
+      <div>画像付き投稿はクリック率2〜3倍↑</div>
+      <div>1〜2週目：毎日投稿・慣らし期間</div>
+      <div>1ヶ月目：クリック発生し始める</div>
+      <div>2〜3ヶ月目：初収益（数百〜数千円）</div>
+      <div>6ヶ月〜：安定収益（1〜5万円/月）</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let generatedTweets = [];
+let todayCount = parseInt(localStorage.getItem('fap_today') || '0');
+const today = new Date().toDateString();
+if (localStorage.getItem('fap_date') !== today) {
+  todayCount = 0;
+  localStorage.setItem('fap_date', today);
+}
+document.getElementById('stat-today').textContent = todayCount;
+
+function switchTab(name) {
+  ['generate','settings','howto'].forEach((t,i) => {
+    document.querySelectorAll('.tab')[i].classList.toggle('active', t === name);
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+  });
+}
+
+function selectGenre(el, val) {
+  document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('selected-genre').value = val;
+}
+
+function log(msg, type='') {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  if (type) line.className = 'log-' + type;
+  line.textContent = '[' + new Date().toLocaleTimeString('ja-JP') + '] ' + msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function setProgress(pct) { document.getElementById('progress').style.width = pct + '%'; }
+
+function saveSettings() {
+  ['fanza-api-id','fanza-affiliate-id'].forEach(k => {
+    const v = document.getElementById(k).value;
+    if (v) localStorage.setItem('fap_' + k, v);
+  });
+  log('設定を保存しました', 'success');
+  alert('保存しました');
+}
+
+function loadSettings() {
+  ['fanza-api-id','fanza-affiliate-id'].forEach(k => {
+    const v = localStorage.getItem('fap_' + k);
+    if (v) document.getElementById(k).value = v;
+  });
+}
+
+function getVal(k) {
+  return document.getElementById(k)?.value || localStorage.getItem('fap_' + k) || '';
+}
+
+const templates = [
+  (t,url,r,c) => `🎬 新着作品！\n「${t}」\n⭐${r}点・${c}件レビュー\n\n気になった方はチェック👇\n${url}\n\n#FANZA #動画 #アダルト動画`,
+  (t,url,r,c) => `✨ 注目作品をご紹介\n\n「${t}」\n評価${r}点（${c}件）\n\n▶ 詳細はこちら\n${url}\n\n#FANZA #新着 #おすすめ`,
+  (t,url,r,c) => `👀 チェックしてほしい作品\n\n「${t}」\n🌟${r}/5.0（${c}件）\n\n${url}\n\n#FANZA #動画配信`,
+  (t,url,r,c) => `📢 話題の作品！\n「${t}」\nレビュー${r}点・${c}人が評価\n\n今すぐ視聴👇\n${url}\n\n#FANZA #おすすめ動画`,
+  (t,url,r,c) => `🔥 人気急上昇中\n\n「${t}」\n⭐平均${r}点\n\nサンプルをチェック👇\n${url}\n\n#FANZA #新作 #動画`,
+];
+
+async function fetchFanzaProducts(genre, sort, hits) {
+  const apiId = getVal('fanza-api-id');
+  const affId = getVal('fanza-affiliate-id');
+  if (!apiId || !affId) throw new Error('FANZA APIキーが未設定です');
+
+  log('FANZA APIから商品情報を取得中...', 'info');
+  const fanzaUrl = `https://api.dmm.com/affiliate/v3/ItemList?api_id=${apiId}&affiliate_id=${affId}&site=FANZA&service=digital&floor=${genre}&hits=${hits}&sort=${sort}&output=json`;
+
+  const proxyUrl = 'https://thingproxy.freeboard.io/fetch/' + fanzaUrl;
+  try {
+    const res = await fetch(proxyUrl, {signal: AbortSignal.timeout(15000)});
+    const parsed = await res.json();
+    if (parsed.result?.items?.length > 0) {
+      log(`${parsed.result.items.length}件の商品を取得しました`, 'success'); const f=parsed.result.items[0]; log('IMG:'+JSON.stringify({iu:f.imageURL,si:f.sampleImageURL}).slice(0,300),'info');
+      return parsed.result.items;
+    }
+    throw new Error('商品データなし');
+  } catch(e) {
+    log('サンプルデータで動作します', 'error');
+    return getMockProducts(hits, affId);
+  }
+}
+
+function getMockProducts(count, affId) {
+  return [
+    {title:'人気急上昇中の注目作品A', affiliateURL:`https://al.dmm.com/?af_id=${affId}`, review:{average:'4.5',count:320}, imageURL:{list:{image:'https://via.placeholder.com/200x280/ff2d55/ffffff?text=FANZA'}, small:{image:'https://via.placeholder.com/100x140/ff2d55/ffffff?text=A'}}, sampleImageURL:[{image:'https://via.placeholder.com/200x280/ff9500/ffffff?text=Sample1'},{image:'https://via.placeholder.com/200x280/30d158/ffffff?text=Sample2'},{image:'https://via.placeholder.com/200x280/0af0ff/ffffff?text=Sample3'}]},
+    {title:'週間ランキング1位の話題作B', affiliateURL:`https://al.dmm.com/?af_id=${affId}`, review:{average:'4.8',count:520}, imageURL:{list:{image:'https://via.placeholder.com/200x280/ff6b35/ffffff?text=FANZA'}, small:{image:''}}, sampleImageURL:[]},
+    {title:'新着！高評価レビュー多数C', affiliateURL:`https://al.dmm.com/?af_id=${affId}`, review:{average:'4.2',count:180}, imageURL:{list:{image:'https://via.placeholder.com/200x280/9b59b6/ffffff?text=FANZA'}, small:{image:''}}, sampleImageURL:[]},
+    {title:'独占配信！見逃せない作品D', affiliateURL:`https://al.dmm.com/?af_id=${affId}`, review:{average:'4.6',count:410}, imageURL:{list:{image:'https://via.placeholder.com/200x280/e74c3c/ffffff?text=FANZA'}, small:{image:''}}, sampleImageURL:[]},
+    {title:'話題沸騰中のシリーズ最新作E', affiliateURL:`https://al.dmm.com/?af_id=${affId}`, review:{average:'4.3',count:95}, imageURL:{list:{image:'https://via.placeholder.com/200x280/2ecc71/ffffff?text=FANZA'}, small:{image:''}}, sampleImageURL:[]},
+  ].slice(0, count);
+}
+
+function getImages(product) {
+  const imgs = [];
+  try {
+    const iu = product.imageURL || {};
+    const main = (typeof iu.list === 'string' ? iu.list : '') ||
+                 (typeof iu.large === 'string' ? iu.large : '') ||
+                 (typeof iu.small === 'string' ? iu.small : '');
+    if (main) imgs.push(main);
+    const si = product.sampleImageURL || {};
+    const sampleArr = (si.sample_s && Array.isArray(si.sample_s.image)) ? si.sample_s.image :
+                      (si.sample_l && Array.isArray(si.sample_l.image)) ? si.sample_l.image :
+                      Array.isArray(si) ? si : [];
+    sampleArr.forEach(url => {
+      if (typeof url === 'string' && url && imgs.length < 4) imgs.push(url);
+    });
+  } catch(e) {}
+  return imgs.slice(0, 4);
+}
+
+async function generateTweets() {
+  const btn = document.getElementById('gen-btn');
+  const genre = document.getElementById('selected-genre').value;
+  const count = parseInt(document.getElementById('gen-count').value);
+  const sort = document.getElementById('sort-order').value;
+
+  btn.disabled = true;
+  generatedTweets = [];
+  document.getElementById('tweets-container').innerHTML = '';
+  document.getElementById('results-section').style.display = 'none';
+  setProgress(0);
+  log('処理を開始します...', 'info');
+
+  try {
+    setProgress(30);
+    const products = await fetchFanzaProducts(genre, sort, count);
+    setProgress(70);
+
+    products.forEach((p, i) => {
+      const title = (p.title || '').slice(0, 25);
+      const url = p.affiliateURL || '';
+      const rating = p.review?.average || '4.0';
+      const reviewCount = p.review?.count || '100';
+      const tweet = templates[i % templates.length](title, url, rating, reviewCount);
+      const images = getImages(p);
+      generatedTweets.push({ tweet, images, title });
+    });
+
+    setProgress(100);
+    renderTweets();
+    document.getElementById('results-section').style.display = 'block';
+    document.getElementById('stat-generated').textContent = generatedTweets.length;
+    log(`完了: ${generatedTweets.length}件生成。画像を長押し保存→テキストをコピー→Xに投稿`, 'success');
+
+  } catch(e) {
+    log('エラー: ' + e.message, 'error');
+  }
+  btn.disabled = false;
+}
+
+function renderTweets() {
+  const container = document.getElementById('tweets-container');
+  container.innerHTML = '';
+  document.getElementById('results-count').textContent = `(${generatedTweets.length}件)`;
+
+  generatedTweets.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'tweet-card';
+
+    const num = document.createElement('div');
+    num.className = 'tweet-num';
+    num.textContent = `TWEET ${i+1}`;
+    card.appendChild(num);
+
+    // 画像グリッド
+    if (item.images.length > 0) {
+      const grid = document.createElement('div');
+      grid.className = 'thumb-grid';
+      item.images.forEach(src => {
+        const wrap = document.createElement('div');
+        wrap.className = 'thumb-wrap';
+        const btn = document.createElement('a');
+        btn.href = src;
+        btn.target = '_blank';
+        btn.style.cssText = 'display:block;background:#1a1a1a;border:1px solid #ff2d55;border-radius:6px;padding:8px;text-align:center;color:#ff2d55;font-size:0.7rem;text-decoration:none;margin-bottom:4px;';
+        btn.textContent = '📷 画像を開く→長押し保存';
+        grid.appendChild(btn);
+      });
+      card.appendChild(grid);
+    } else {
+      const noImg = document.createElement('div');
+      noImg.className = 'no-img';
+      noImg.textContent = '画像なし';
+      card.appendChild(noImg);
+    }
+
+    // テキストエリア
+    const ta = document.createElement('textarea');
+    ta.className = 'tweet-textarea';
+    ta.value = item.tweet;
+    ta.addEventListener('focus', () => {
+      todayCount++;
+      localStorage.setItem('fap_today', todayCount);
+      document.getElementById('stat-today').textContent = todayCount;
+    });
+    card.appendChild(ta);
+
+    const len = document.createElement('div');
+    len.className = 'tweet-len';
+    len.textContent = `${item.tweet.length}文字`;
+    card.appendChild(len);
+
+    const hint = document.createElement('div');
+    hint.className = 'step-hint';
+    hint.innerHTML = '① 画像を長押し→保存　② テキスト長押し→全選択→コピー　③ Xに投稿';
+    card.appendChild(hint);
+
+    container.appendChild(card);
+  });
+}
+
+window.onload = () => {
+  loadSettings();
+  log('FANZA AUTO POSTER 起動しました', 'info');
+};
+</script>
+</body>
+</html>
