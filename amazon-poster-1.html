@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMAZON POSTER</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;700&display=swap');
+  :root {
+    --bg: #f5f5f5; --surface: #ffffff; --surface2: #f0f0f0;
+    --accent: #e47911; --accent2: #146eb4; --text: #111111;
+    --muted: #888; --border: #ddd; --success: #1a8a00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; padding: 16px; }
+  header { text-align: center; padding: 24px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; letter-spacing: 6px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  header p { color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; margin-top: 4px; }
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+  .section-title { font-size: 0.65rem; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; font-weight: 700; }
+  .field { margin-bottom: 12px; }
+  label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
+  input, select, textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 10px 12px; font-size: 0.82rem; font-family: 'Noto Sans JP', sans-serif; outline: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 3px; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), #e88900); color: white; }
+  .btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+  .tweet-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+  .tweet-num { font-size: 0.65rem; color: var(--accent); letter-spacing: 2px; font-weight: 700; margin-bottom: 8px; }
+  .tweet-textarea { width: 100%; background: #fff; border: 2px solid var(--accent); border-radius: 8px; color: var(--text); padding: 12px; font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; line-height: 1.8; min-height: 160px; outline: none; -webkit-user-select: text; user-select: text; }
+  .tweet-len { font-size: 0.65rem; text-align: right; margin-top: 4px; }
+  .len-ok { color: var(--success); }
+  .len-over { color: #ff3b30; }
+  .tab-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tab { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--muted); font-size: 0.72rem; cursor: pointer; text-align: center; transition: all 0.2s; }
+  .tab.active { border-color: var(--accent); color: var(--accent); background: rgba(255,153,0,0.08); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .hint { background: rgba(255,153,0,0.08); border: 1px solid rgba(255,153,0,0.3); border-radius: 8px; padding: 10px 12px; font-size: 0.75rem; color: var(--accent); margin-bottom: 12px; line-height: 1.7; }
+  .ranking-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+  .ranking-item:hover { border-color: var(--accent); }
+  .ranking-item .rank { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--accent); }
+  .ranking-item .name { font-size: 0.8rem; margin-top: 4px; }
+  .ranking-item .price { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .stat-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; }
+  .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--accent); }
+  .stat-label { font-size: 0.58rem; color: var(--muted); margin-top: 2px; }
+  .template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .template-btn { padding: 10px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--muted); font-size: 0.7rem; cursor: pointer; text-align: center; transition: all 0.2s; line-height: 1.4; }
+  .template-btn.selected { border-color: var(--accent); color: var(--accent); background: rgba(255,153,0,0.08); }
+</style>
+</head>
+<body>
+<header>
+  <h1>AMAZON POSTER</h1>
+  <p>GADGET AFFILIATE TWEET GENERATOR</p>
+</header>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-num" id="stat-generated">0</div><div class="stat-label">生成済み</div></div>
+  <div class="stat-box"><div class="stat-num" id="stat-today">0</div><div class="stat-label">本日投稿</div></div>
+  <div class="stat-box"><div class="stat-num" id="stat-sales">0</div><div class="stat-label">売上件数</div></div>
+</div>
+
+<div class="tab-row">
+  <div class="tab active" onclick="switchTab('generate')">生成</div>
+  <div class="tab" onclick="switchTab('ranking')">ランキング</div>
+  <div class="tab" onclick="switchTab('settings')">設定</div>
+  <div class="tab" onclick="switchTab('howto')">使い方</div>
+</div>
+
+<!-- 生成タブ -->
+<div class="tab-content active" id="tab-generate">
+  <div class="hint">
+    📦 商品情報を入力してツイートを自動生成<br>
+    テキストを長押し→全選択→コピー→Xに投稿
+  </div>
+
+  <div class="section">
+    <div class="section-title">商品情報を入力</div>
+    <div class="field">
+      <label>商品名（短く）</label>
+      <input type="text" id="product-name" placeholder="例：Anker Soundcore P40i ワイヤレスイヤホン">
+    </div>
+    <div class="field">
+      <label>価格</label>
+      <input type="text" id="product-price" placeholder="例：3,990円">
+    </div>
+    <div class="field">
+      <label>アフィリエイトリンク</label>
+      <input type="text" id="product-url" placeholder="https://amzn.to/xxxxx">
+    </div>
+    <div class="field">
+      <label>特徴・ポイント（任意）</label>
+      <input type="text" id="product-feature" placeholder="例：ノイキャン搭載・最大60時間再生">
+    </div>
+    <div class="field">
+      <label>テンプレート</label>
+      <div class="template-grid">
+        <div class="template-btn selected" onclick="selectTemplate(this, 0)">🔥 人気・注目</div>
+        <div class="template-btn" onclick="selectTemplate(this, 1)">💰 コスパ</div>
+        <div class="template-btn" onclick="selectTemplate(this, 2)">⭐ ランキング</div>
+        <div class="template-btn" onclick="selectTemplate(this, 3)">🆕 新着・話題</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="generateTweet()">ツイートを生成する</button>
+  </div>
+
+  <div id="result-section" style="display:none">
+    <div class="section">
+      <div class="section-title">生成結果</div>
+      <div class="tweet-card">
+        <div class="tweet-num">TWEET</div>
+        <textarea class="tweet-textarea" id="tweet-output"></textarea>
+        <div class="tweet-len" id="tweet-len"></div>
+      </div>
+      <button class="btn btn-secondary" onclick="regenerate()">別パターンで再生成</button>
+    </div>
+  </div>
+</div>
+
+<!-- ランキングタブ -->
+<div class="tab-content" id="tab-ranking">
+  <div class="hint">
+    📊 Amazonの人気カテゴリのランキングページ<br>
+    商品をタップするとリンクが開きます
+  </div>
+
+  <div class="section">
+    <div class="section-title">カテゴリ別ランキング</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <a href="https://www.amazon.co.jp/gp/bestsellers/electronics/" target="_blank" style="display:block;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:#111;text-decoration:none;font-size:0.82rem;">
+        📱 家電・カメラ ランキング →
+      </a>
+      <a href="https://www.amazon.co.jp/gp/bestsellers/computers/" target="_blank" style="display:block;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:#111;text-decoration:none;font-size:0.82rem;">
+        💻 パソコン・周辺機器 ランキング →
+      </a>
+      <a href="https://www.amazon.co.jp/gp/bestsellers/ce-jp/" target="_blank" style="display:block;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:#111;text-decoration:none;font-size:0.82rem;">
+        🎧 イヤホン・ヘッドホン ランキング →
+      </a>
+      <a href="https://www.amazon.co.jp/gp/bestsellers/sports/" target="_blank" style="display:block;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:#111;text-decoration:none;font-size:0.82rem;">
+        🏃 スポーツ・アウトドア ランキング →
+      </a>
+      <a href="https://www.amazon.co.jp/gp/movers-and-shakers/electronics/" target="_blank" style="display:block;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:#111;text-decoration:none;font-size:0.82rem;">
+        ⚡ 急上昇ランキング →
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">アフィリエイトリンク作成</div>
+    <div class="field">
+      <label>AmazonページのURL</label>
+      <input type="text" id="amazon-url" placeholder="https://www.amazon.co.jp/dp/XXXXXX">
+    </div>
+    <div class="field">
+      <label>トラッキングID</label>
+      <input type="text" id="tracking-id" placeholder="gadgethunterjp-22">
+    </div>
+    <button class="btn btn-primary" onclick="generateAffLink()">アフィリエイトリンクを生成</button>
+    <textarea id="aff-link-output" style="margin-top:8px;height:60px;font-size:0.75rem;" placeholder="生成されたリンクがここに表示されます"></textarea>
+  </div>
+</div>
+
+<!-- 設定タブ -->
+<div class="tab-content" id="tab-settings">
+  <div class="section">
+    <div class="section-title">アカウント設定</div>
+    <div class="field">
+      <label>トラッキングID</label>
+      <input type="text" id="setting-tracking-id" placeholder="gadgethunterjp-22">
+    </div>
+    <div class="field">
+      <label>X アカウント名</label>
+      <input type="text" id="setting-account" placeholder="GadgetHunterJP" value="GadgetHunterJP">
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="saveSettings()">設定を保存する</button>
+  <button class="btn btn-secondary" onclick="addSale()">売上を記録する（+1）</button>
+</div>
+
+<!-- 使い方タブ -->
+<div class="tab-content" id="tab-howto">
+  <div class="section">
+    <div class="section-title">1日の手順（3分）</div>
+    <div style="font-size:0.8rem;line-height:2.2;color:var(--muted);">
+      <div>① 「ランキング」タブでAmazonランキングを確認</div>
+      <div>② 気になる商品のページを開く</div>
+      <div>③ 「アフィリエイトリンクを生成」でリンク作成</div>
+      <div>④ 「生成」タブで商品情報を入力</div>
+      <div>⑤ ツイートを生成→コピー→Xに投稿</div>
+      <div style="margin-top:8px;color:var(--success);">✅ 完了</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">PA-API利用条件</div>
+    <div style="font-size:0.78rem;line-height:1.9;color:var(--muted);">
+      <div>現在：手動で商品情報を入力</div>
+      <div>3件売上達成後：PA-APIで完全自動化</div>
+      <div style="color:var(--accent);margin-top:4px;">目標：180日以内に3件売上</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">収益の目安</div>
+    <div style="font-size:0.78rem;line-height:1.9;color:var(--muted);">
+      <div>家電・ガジェット報酬率：2〜4%</div>
+      <div>例：5,000円商品×4%＝200円/件</div>
+      <div>月100件クリック→購入率3%＝3件/月</div>
+      <div style="color:var(--success);margin-top:4px;">フォロワーが増えるほど加速</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedTemplate = 0;
+let generatedCount = 0;
+let todayCount = parseInt(localStorage.getItem('ap_today') || '0');
+let salesCount = parseInt(localStorage.getItem('ap_sales') || '0');
+const today = new Date().toDateString();
+if (localStorage.getItem('ap_date') !== today) {
+  todayCount = 0;
+  localStorage.setItem('ap_date', today);
+}
+document.getElementById('stat-today').textContent = todayCount;
+document.getElementById('stat-sales').textContent = salesCount;
+
+function switchTab(name) {
+  ['generate','ranking','settings','howto'].forEach((t,i) => {
+    document.querySelectorAll('.tab')[i].classList.toggle('active', t === name);
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+  });
+}
+
+function selectTemplate(el, idx) {
+  document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedTemplate = idx;
+}
+
+function saveSettings() {
+  const tid = document.getElementById('setting-tracking-id').value;
+  const acc = document.getElementById('setting-account').value;
+  if (tid) localStorage.setItem('ap_tracking_id', tid);
+  if (acc) localStorage.setItem('ap_account', acc);
+  // ランキングタブのトラッキングIDにも反映
+  document.getElementById('tracking-id').value = tid;
+  alert('保存しました');
+}
+
+function loadSettings() {
+  const tid = localStorage.getItem('ap_tracking_id');
+  const acc = localStorage.getItem('ap_account');
+  if (tid) {
+    document.getElementById('setting-tracking-id').value = tid;
+    document.getElementById('tracking-id').value = tid;
+  }
+  if (acc) document.getElementById('setting-account').value = acc;
+}
+
+function addSale() {
+  salesCount++;
+  localStorage.setItem('ap_sales', salesCount);
+  document.getElementById('stat-sales').textContent = salesCount;
+  alert('売上を記録しました！現在' + salesCount + '件');
+}
+
+const templates = [
+  (name, price, url, feature) => `🔥 今注目のガジェット！\n\n「${name}」\n💴 ${price}\n${feature ? '✨ ' + feature + '\n' : ''}\n▶ Amazonで詳細はこちら\n${url}\n\n#ガジェット #Amazon #おすすめ`,
+  (name, price, url, feature) => `💰 コスパ最強のアイテム発見！\n\n「${name}」\n💴 ${price}\n${feature ? '⚡ ' + feature + '\n' : ''}\n▶ チェックはこちら👇\n${url}\n\n#コスパ #Amazon #ガジェット`,
+  (name, price, url, feature) => `⭐ Amazonランキング上位の人気商品\n\n「${name}」\n💴 ${price}\n${feature ? '🎯 ' + feature + '\n' : ''}\n▶ 今すぐチェック\n${url}\n\n#Amazon #ランキング #おすすめ`,
+  (name, price, url, feature) => `🆕 今話題のガジェットをご紹介\n\n「${name}」\n💴 ${price}\n${feature ? '📌 ' + feature + '\n' : ''}\n▶ 詳細・購入はこちら\n${url}\n\n#新着 #ガジェット #Amazon`,
+];
+
+function generateTweet() {
+  const name = document.getElementById('product-name').value.trim();
+  const price = document.getElementById('product-price').value.trim();
+  const url = document.getElementById('product-url').value.trim();
+  const feature = document.getElementById('product-feature').value.trim();
+
+  if (!name || !url) {
+    alert('商品名とアフィリエイトリンクは必須です');
+    return;
+  }
+
+  const tweet = templates[selectedTemplate](name, price || '価格はリンクで確認', url, feature);
+  document.getElementById('tweet-output').value = tweet;
+  updateLen(tweet);
+  document.getElementById('result-section').style.display = 'block';
+
+  generatedCount++;
+  document.getElementById('stat-generated').textContent = generatedCount;
+  todayCount++;
+  localStorage.setItem('ap_today', todayCount);
+  document.getElementById('stat-today').textContent = todayCount;
+}
+
+function regenerate() {
+  selectedTemplate = (selectedTemplate + 1) % templates.length;
+  document.querySelectorAll('.template-btn').forEach((b,i) => b.classList.toggle('selected', i === selectedTemplate));
+  generateTweet();
+}
+
+function updateLen(text) {
+  const len = text.length;
+  const el = document.getElementById('tweet-len');
+  el.textContent = len + '文字';
+  el.className = 'tweet-len ' + (len <= 140 ? 'len-ok' : 'len-over');
+}
+
+document.getElementById('tweet-output')?.addEventListener('input', function() {
+  updateLen(this.value);
+});
+
+function generateAffLink() {
+  const url = document.getElementById('amazon-url').value.trim();
+  const tid = document.getElementById('tracking-id').value.trim() || localStorage.getItem('ap_tracking_id') || '';
+
+  if (!url || !tid) {
+    alert('URLとトラッキングIDを入力してください');
+    return;
+  }
+
+  // ASIN抽出
+  const asinMatch = url.match(/\/dp\/([A-Z0-9]{10})/);
+  let affLink = '';
+  if (asinMatch) {
+    affLink = `https://www.amazon.co.jp/dp/${asinMatch[1]}?tag=${tid}`;
+  } else {
+    affLink = url + (url.includes('?') ? '&' : '?') + `tag=${tid}`;
+  }
+  document.getElementById('aff-link-output').value = affLink;
+}
+
+window.onload = loadSettings;
+</script>
+</body>
+</html>
